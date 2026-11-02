@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kütüphane Sorusu</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Waffle deseni */
+  body {
+    background-color: #e3a64a;
+    background-image:
+      radial-gradient(circle at 50% 50%, rgba(255, 220, 140, 0.55) 0 30%, transparent 62%),
+      linear-gradient(90deg, #b8742a 0 9px, transparent 9px),
+      linear-gradient(0deg,  #b8742a 0 9px, transparent 9px),
+      linear-gradient(90deg, rgba(120, 60, 15, 0.25) 0 14px, transparent 14px),
+      linear-gradient(0deg,  rgba(120, 60, 15, 0.25) 0 14px, transparent 14px);
+    background-size: 56px 56px;
+  }
+  /* Çikolata sosu */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='160'%3E%3Cpath d='M-10 40 Q30 10 60 40 T130 40 T200 40 T270 40' stroke='%235a2a0c' stroke-width='7' fill='none' stroke-linecap='round' opacity='0.75'/%3E%3Cpath d='M-10 120 Q40 95 80 120 T160 120 T240 120' stroke='%23f7f0ff' stroke-width='5' fill='none' stroke-linecap='round' opacity='0.6'/%3E%3C/svg%3E");
+    background-size: 220px 160px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* Kenarlarda kızarmış hissi */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(110, 50, 10, 0.45) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-float {
+    position: fixed;
+    bottom: -50px;
+    pointer-events: none;
+    animation: rise linear infinite;
+    z-index: 0;
+    opacity: 0.85;
+  }
+  @keyframes rise {
+    from { transform: translateY(0) rotate(0deg); }
+    to   { transform: translateY(-115vh) rotate(30deg); }
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .card {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    padding: 40px 24px 32px;
+    background: #fff8e7;
+    border-radius: 30px;
+    box-shadow:
+      0 0 0 8px #f6dfa8,
+      0 0 0 11px #8a4a1a,
+      0 18px 40px rgba(80, 35, 5, 0.5);
+    text-align: center;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    top: -3px; left: 18px; right: 18px;
+    height: 22px;
+    background:
+      radial-gradient(circle at 12% 100%, #7a3a10 0 9px, transparent 10px),
+      radial-gradient(circle at 38% 100%, #7a3a10 0 12px, transparent 13px),
+      radial-gradient(circle at 66% 100%, #7a3a10 0 8px, transparent 9px),
+      radial-gradient(circle at 88% 100%, #7a3a10 0 11px, transparent 12px),
+      linear-gradient(#7a3a10, #7a3a10) top / 100% 10px no-repeat;
+    border-radius: 0 0 12px 12px;
+    opacity: 0.9;
+  }
+
+  .big-waffle svg {
+    width: min(150px, 24vh);
+    height: auto;
+  }
+  @media (max-height: 520px) {
+    .card { padding: 26px 20px 20px; }
+    h1 { margin-bottom: 16px; font-size: 20px; }
+    .cool { font-size: 44px; margin-top: 6px; }
+    #reply { font-size: 17px; }
+  }
+  .big-waffle {
+    margin: -8px 0 6px;
+    line-height: 0;
+    transform-origin: 50% 90%;
+    animation: wobble 1.6s ease-in-out infinite;
+  }
+  @keyframes wobble {
+    0%, 100% { transform: rotate(-6deg) scale(1); }
+    50%      { transform: rotate(6deg) scale(1.08); }
+  }
+  h1 {
+    margin: 0 0 28px;
+    font-size: clamp(21px, 5.5vw, 26px);
+    color: #7a3a10;
+    line-height: 1.35;
+  }
+  .btns {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    min-height: 60px;
+  }
+  button {
+    font: inherit;
+    font-weight: 700;
+    font-size: 18px;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 32px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  #yes {
+    background: linear-gradient(180deg, #a2531c, #7a3a10);
+    color: #fff3d6;
+    box-shadow: 0 6px 0 #5a2808, 0 10px 18px rgba(90, 40, 8, 0.4);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  #yes:active { transform: translateY(4px); box-shadow: 0 2px 0 #5a2808; }
+  #no {
+    background: #d9c7a3;
+    color: #8a6a40;
+    z-index: 5;
+    transition: left 0.2s ease, top 0.2s ease;
+  }
+  #no.escaped { position: fixed; margin: 0; }
+
+  #reply {
+    display: none;
+    font-size: 20px;
+    color: #7a3a10;
+    line-height: 1.5;
+    font-weight: 700;
+    animation: pop 0.4s ease-out;
+  }
+  @keyframes pop {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .cool {
+    font-size: 64px;
+    margin-top: 14px;
+    animation: coolIn 0.7s ease-out 0.4s both;
+  }
+  @keyframes coolIn {
+    from { transform: translateY(-40px) rotate(-20deg) scale(0.4); opacity: 0; }
+    to   { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
+  }
+
+  .burst {
+    position: fixed;
+    font-size: 30px;
+    pointer-events: none;
+    z-index: 10;
+    animation: burstUp 1.6s ease-out forwards;
+  }
+  @keyframes burstUp {
+    from { transform: translateY(0) scale(0.6); opacity: 1; }
+    to   { transform: translateY(-190px) scale(1.3) rotate(25deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="big-waffle">
+        <svg viewBox="0 0 120 135" width="150" height="169" aria-label="Kova waffle">
+          <defs>
+            <pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse">
+              <rect width="8" height="8" fill="#e8ad55"/>
+              <rect width="8" height="2" fill="#b8742a"/>
+              <rect width="2" height="8" fill="#b8742a"/>
+            </pattern>
+            <clipPath id="cupClip"><path d="M18 66 L102 66 L92 130 L28 130 Z"/></clipPath>
+          </defs>
+          <rect x="22" y="30" width="30" height="30" rx="4" fill="url(#grid)" transform="rotate(-18 37 45)"/>
+          <rect x="66" y="26" width="30" height="30" rx="4" fill="url(#grid)" transform="rotate(16 81 41)"/>
+          <rect x="44" y="18" width="32" height="32" rx="4" fill="url(#grid)" transform="rotate(5 60 34)"/>
+          <rect x="30" y="44" width="26" height="24" rx="4" fill="url(#grid)" transform="rotate(10 43 56)"/>
+          <rect x="62" y="44" width="28" height="24" rx="4" fill="url(#grid)" transform="rotate(-8 76 56)"/>
+          <path d="M28 40 Q40 30 52 36 Q62 24 74 34 Q86 28 94 40 Q88 46 90 52 Q86 60 84 50 Q78 44 70 50 Q66 62 62 50 Q54 44 46 52 Q42 62 40 50 Q32 46 28 40 Z" fill="#5a2a0c"/>
+          <path d="M40 34 Q50 30 58 33" stroke="#8a4a1f" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M44 22 Q36 26 40 36 Q46 42 52 34 Q55 24 44 22 Z" fill="#e8304a"/>
+          <path d="M42 22 L46 18 L49 22 L53 20 L50 25 Z" fill="#3a9a3a"/>
+          <circle cx="43" cy="29" r="0.9" fill="#ffe08a"/><circle cx="47" cy="32" r="0.9" fill="#ffe08a"/><circle cx="46" cy="26" r="0.9" fill="#ffe08a"/>
+          <circle cx="70" cy="24" r="7" fill="#fff3b8" stroke="#e5cf72" stroke-width="1.5"/>
+          <circle cx="70" cy="24" r="1.6" fill="#e5cf72"/>
+          <circle cx="86" cy="36" r="6" fill="#fff3b8" stroke="#e5cf72" stroke-width="1.5"/>
+          <circle cx="86" cy="36" r="1.4" fill="#e5cf72"/>
+          <circle cx="58" cy="40" r="7" fill="#8cc63f" stroke="#6b4a1f" stroke-width="1.5"/>
+          <circle cx="58" cy="40" r="2.5" fill="#e9f5c8"/>
+          <circle cx="58" cy="35.5" r="0.8" fill="#222"/><circle cx="62.5" cy="40" r="0.8" fill="#222"/><circle cx="58" cy="44.5" r="0.8" fill="#222"/><circle cx="53.5" cy="40" r="0.8" fill="#222"/>
+          <rect x="34" y="44" width="5" height="1.8" rx="0.9" fill="#ff6fa3" transform="rotate(30 36 45)"/>
+          <rect x="76" y="46" width="5" height="1.8" rx="0.9" fill="#4fc3f7" transform="rotate(-20 78 47)"/>
+          <rect x="66" y="38" width="5" height="1.8" rx="0.9" fill="#ffd54f" transform="rotate(60 68 39)"/>
+          <rect x="48" y="46" width="5" height="1.8" rx="0.9" fill="#ba68c8" transform="rotate(-40 50 47)"/>
+          <g clip-path="url(#cupClip)">
+            <rect x="10" y="60" width="100" height="80" fill="#fff"/>
+            <rect x="22" y="60" width="10" height="80" fill="#ff8fb5"/>
+            <rect x="42" y="60" width="10" height="80" fill="#ff8fb5"/>
+            <rect x="62" y="60" width="10" height="80" fill="#ff8fb5"/>
+            <rect x="82" y="60" width="10" height="80" fill="#ff8fb5"/>
+          </g>
+          <path d="M16 62 L104 62 L104 68 Q100 68 99 76 Q97 80 95 76 Q94 68 88 68 L60 68 Q56 68 55 80 Q53 85 51 80 Q50 68 44 68 L30 68 Q26 68 25 74 Q23 78 21 74 Q20 68 16 68 Z" fill="#5a2a0c"/>
+          <rect x="14" y="58" width="92" height="8" rx="4" fill="#ff4d8d"/>
+        </svg>
+      </div>
+      <h1>Yarın kütüphanede benimle çalışır mısın? 📚</h1>
+      <div class="btns" id="btns">
+        <button id="yes">Evet 🧇</button>
+        <button id="no">Hayır</button>
+      </div>
+      <div id="reply">
+        Çok benimle oturmak istediğini biliyorum 💛<br>
+        fakat ayrı ayrı oturacağız.<br>
+        Ayrıca uzun süre çalışacaksın.
+        <div class="cool">😎</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const yes = document.getElementById('yes');
+  const no = document.getElementById('no');
+  const btns = document.getElementById('btns');
+  const reply = document.getElementById('reply');
+
+  const floaters = ['🧇', '🍓', '🍌', '🥝', '🍫', '🧇', '🍓', '💗'];
+  for (let i = 0; i < 16; i++) {
+    const f = document.createElement('span');
+    f.className = 'bg-float';
+    f.textContent = floaters[i % floaters.length];
+    f.style.left = Math.random() * 100 + 'vw';
+    f.style.fontSize = (20 + Math.random() * 28) + 'px';
+    f.style.animationDuration = (8 + Math.random() * 8) + 's';
+    f.style.animationDelay = (-Math.random() * 14) + 's';
+    document.body.appendChild(f);
+  }
+
+  function overlaps(a, b, pad) {
+    return !(a.right + pad < b.left || a.left - pad > b.right ||
+             a.bottom + pad < b.top || a.top - pad > b.bottom);
+  }
+
+  function moveNo() {
+    if (!no.classList.contains('escaped')) {
+      const r = no.getBoundingClientRect();
+      btns.style.minWidth = btns.offsetWidth + 'px';
+      no.classList.add('escaped');
+      no.style.left = r.left + 'px';
+      no.style.top = r.top + 'px';
+    }
+
+    const margin = 12;
+    const bw = no.offsetWidth, bh = no.offsetHeight;
+    const maxX = window.innerWidth - bw - margin;
+    const maxY = window.innerHeight - bh - margin;
+    const yesRect = yes.getBoundingClientRect();
+    const cur = no.getBoundingClientRect();
+
+    let x, y, tries = 0;
+    do {
+      x = margin + Math.random() * (maxX - margin);
+      y = margin + Math.random() * (maxY - margin);
+      tries++;
+      const cand = { left: x, top: y, right: x + bw, bottom: y + bh };
+      const far = Math.hypot(x - cur.left, y - cur.top) > 120;
+      if (!overlaps(cand, yesRect, 20) && far) break;
+    } while (tries < 60);
+
+    no.style.left = x + 'px';
+    no.style.top = y + 'px';
+  }
+
+  no.addEventListener('pointerdown', (e) => { e.preventDefault(); moveNo(); });
+  no.addEventListener('touchstart', (e) => { e.preventDefault(); moveNo(); }, { passive: false });
+  no.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') moveNo(); });
+  no.addEventListener('click', (e) => { e.preventDefault(); moveNo(); });
+
+  window.addEventListener('resize', () => {
+    if (no.classList.contains('escaped')) moveNo();
+  });
+
+  function burst(x, y) {
+    const items = ['🧇', '🍓', '🍌', '🥝', '🍫', '💗'];
+    for (let i = 0; i < 16; i++) {
+      const s = document.createElement('span');
+      s.className = 'burst';
+      s.textContent = items[i % items.length];
+      s.style.left = (x + (Math.random() * 180 - 90)) + 'px';
+      s.style.top = (y + (Math.random() * 50 - 25)) + 'px';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 1700);
+    }
+  }
+
+  yes.addEventListener('click', () => {
+    const r = yes.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top);
+    btns.style.display = 'none';
+    no.style.display = 'none';
+    reply.style.display = 'block';
+  });
+</script>
+</body>
+</html>
